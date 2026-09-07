@@ -3,161 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Tareas</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: system-ui, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: #f5f5f5;
-        }
-        .container {
-            background: #fff;
-            padding: 2rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-            width: min(90vw, 700px);
-        }
-        h1 { margin-bottom: 1rem; font-size: 1.5rem; }
-        .form-row { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
-        input[type="text"] {
-            flex: 1;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-        select {
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            background: #fff;
-        }
-        .btn {
-            padding: 0.5rem 1rem;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            white-space: nowrap;
-        }
-        .btn-primary { background: #4f46e5; }
-        .btn-primary:hover { background: #4338ca; }
-        .btn-success { background: #16a34a; }
-        .btn-success:hover { background: #15803d; }
-        .btn-danger { background: #dc2626; }
-        .btn-danger:hover { background: #b91c1c; }
-        ul { list-style: none; }
-        li {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #eee;
-            gap: 0.75rem;
-        }
-        .task-info { display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 0; overflow: hidden; }
-        .task-info span { overflow-wrap: break-word; hyphens: auto; }
-        .prioridad { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-        .prioridad-alta { background: #fecaca; color: #991b1b; }
-        .prioridad-media { background: #fef3c7; color: #92400e; }
-        .prioridad-baja { background: #d1fae5; color: #065f46; }
-        .completada { text-decoration: line-through; color: #999; }
-        .actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
-    </style>
+    <title>To-Do List | Gestor de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Mis Tareas</h1>
+        <header>
+            <h1>Mis Tareas</h1>
+            <p class="subtitle">Organizador personal de pendientes con prioridades</p>
+        </header>
+
+        <div id="errorBanner" class="error-banner" role="alert"></div>
+
         <form id="taskForm" class="form-row">
-            <input type="text" id="taskInput" placeholder="Nueva tarea..." required>
-            <select id="taskPriority">
+            <input type="text" id="taskInput" placeholder="¿Qué necesitas hacer hoy?..." required autocomplete="off">
+            <select id="taskPriority" aria-label="Prioridad de la tarea">
                 <option value="Baja">Baja</option>
                 <option value="Media" selected>Media</option>
                 <option value="Alta">Alta</option>
             </select>
             <button type="submit" class="btn btn-primary">Agregar</button>
         </form>
-        <ul id="taskList"></ul>
+
+        <div class="filters-bar">
+            <div class="filter-tabs" role="tablist">
+                <button type="button" class="filter-btn active" data-filter="all">Todas</button>
+                <button type="button" class="filter-btn" data-filter="pending">Pendientes</button>
+                <button type="button" class="filter-btn" data-filter="completed">Completadas</button>
+            </div>
+            <span id="taskCounter" class="task-counter">Cargando tareas...</span>
+        </div>
+
+        <ul id="taskList" aria-live="polite"></ul>
     </div>
-    <script>
-        const API = 'http://127.0.0.1:8000';
 
-        function prioridadClass(p) {
-            return 'prioridad-' + p.toLowerCase();
-        }
-
-        async function loadTasks() {
-            const res = await fetch(`${API}/tasks`);
-            const tasks = await res.json();
-            const list = document.getElementById('taskList');
-            list.innerHTML = '';
-            tasks.forEach(t => {
-                const li = document.createElement('li');
-
-                const info = document.createElement('div');
-                info.className = 'task-info';
-
-                const badge = document.createElement('span');
-                badge.className = 'prioridad ' + prioridadClass(t.prioridad);
-                badge.textContent = t.prioridad;
-
-                const title = document.createElement('span');
-                title.textContent = t.titulo;
-                if (t.completada) title.classList.add('completada');
-
-                info.appendChild(badge);
-                info.appendChild(title);
-
-                const actions = document.createElement('div');
-                actions.className = 'actions';
-
-                const btnToggle = document.createElement('button');
-                btnToggle.className = 'btn btn-success';
-                btnToggle.textContent = t.completada ? 'Deshacer' : 'Completar';
-                btnToggle.addEventListener('click', async () => {
-                    await fetch(`${API}/tasks/${t.id}`, { method: 'PUT' });
-                    loadTasks();
-                });
-
-                const btnDelete = document.createElement('button');
-                btnDelete.className = 'btn btn-danger';
-                btnDelete.textContent = 'Eliminar';
-                btnDelete.addEventListener('click', async () => {
-                    await fetch(`${API}/tasks/${t.id}`, { method: 'DELETE' });
-                    loadTasks();
-                });
-
-                actions.appendChild(btnToggle);
-                actions.appendChild(btnDelete);
-
-                li.appendChild(info);
-                li.appendChild(actions);
-                list.appendChild(li);
-            });
-        }
-
-        document.getElementById('taskForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('taskInput');
-            const priority = document.getElementById('taskPriority');
-            const titulo = input.value.trim();
-            if (!titulo) return;
-            await fetch(`${API}/tasks`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ titulo, prioridad: priority.value })
-            });
-            input.value = '';
-            loadTasks();
-        });
-
-        loadTasks();
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
