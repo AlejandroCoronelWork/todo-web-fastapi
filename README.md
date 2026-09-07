@@ -42,7 +42,6 @@ todo-web-fastapi/
 ├── tests/
 │   └── test_tasks.py    # Suite de pruebas unitarias con base de datos aislada
 ├── requirements.txt     # Dependencias del proyecto
-├── LICENSE              # Licencia de uso académico y educativo
 ├── agents.md            # Convenciones y contexto del proyecto
 └── README.md            # Documentación general
 ```
@@ -128,4 +127,4 @@ La documentación Swagger interactiva está disponible en: 👉 **`http://127.0.
 
 ## 📜 Licencia
 
-Este software se distribuye bajo una **Licencia de Uso Académico y Educativo (No Comercial)**. Consulta el archivo [`LICENSE`](LICENSE) para más detalles.
+Este proyecto fue desarrollado exclusivamente con fines **académicos y educativos**. Todos los derechos pertenecen a sus respectivos autores. Queda prohibida su explotación comercial sin autorización expresa.
