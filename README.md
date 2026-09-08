@@ -169,6 +169,7 @@ Este proyecto fue desarrollado de forma colaborativa por:
 * **David Alejandro Cruz Palacios** — [@aledash3](https://github.com/aledash3)
 
 Carrera de Ingeniería en Ciencias de la Computación  
+Asignatura: **Inteligencia Artificial** (6to Semestre)  
 **Universidad Politécnica Salesiana (UPS)**  
 Quito, Ecuador
 
